@@ -1,0 +1,53 @@
+---
+- name: ansible automation
+  hosts: all
+  become: yes
+  gather_facts: False
+  tasks:
+    - name: Set timezone on Ubuntu db server
+      copy: content='Europe/London'
+            dest=/etc/timezone
+            owner=root
+            group=root
+            mode=0644
+            backup=yes
+      delegate_to: db
+      notify:
+        - update timezone
+  handlers:
+    - name: update timezone
+      command: dpkg-reconfigure --frontend noninteractive tzdata
+    
+    - name: Create a non-root user on all servers
+      user:
+        name: felix
+        state: present
+      
+    - name: set timezone to Europe/London
+      timezone:
+         name: Europe/London
+         command: timedatectl set-timezone Europe/London
+         delegate_to: webservers
+         
+
+    - name: Add repository
+      yum_repository:
+         name: epel
+         description: EPEL YUM repo
+         baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+         state: latest
+
+    - name: ensure a list of packages installed
+      package:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - httpd
+        - httpd-tools
+        - nfs-utils
+    
+    - name: upgrade all packages
+      package:
+        name: '*'
+        state: latest
+    

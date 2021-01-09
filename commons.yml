@@ -1,0 +1,64 @@
+---
+- name: ansible automation
+  hosts: "*"
+  become: yes
+  gather_facts: False
+  tasks:
+       
+    - name: Add the user 'johnd' with a specific uid and a primary group of 'admin'
+      user:
+        name: johnd
+        comment: John Doe
+        uid: 1040
+
+    - name: Set timezone to Europe/London
+      timezone:
+          name: Europe/London
+
+    - name: Add repository
+      yum_repository:
+         name: epel
+         description: EPEL YUM repo
+         baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+         state: present
+
+    
+    - name: run multiple commands in a loop
+      command: "{{ item }}"
+      loop:
+       - touch /tmp/test_file
+       - mkdir /tmp/test_dir
+       - mv /tmp/test_file /tmp/test_dir
+         
+    - name: Install network utilities
+      package:
+        name: net-tools
+        state: latest
+
+    
+    - name: ensure directory exists
+      file:
+        path: /tmp/test_dir
+        state: directory
+
+    - name: ensure file exists
+      command: touch /tmp/test_file
+      args:
+        chdir: /tmp/test_dir
+
+     
+         
+    
+
+    
+    - name: upgrade all packages
+      package:
+        name: '*'
+        state: latest
+
+    - name: install nfs-client
+      package:
+        name: nfs-utils
+        state: present
+      
+    
