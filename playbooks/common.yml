@@ -46,7 +46,4 @@
         - httpd-tools
         - nfs-utils
     
-    - name: upgrade all packages
-      package:
-        name: '*'
-        state: present
+    
